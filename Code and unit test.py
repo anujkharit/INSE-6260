@@ -1,277 +1,163 @@
 from tkinter import *
 from tkinter import ttk
-from tkinter import messagebox
 import sqlite3
-import unittest
+from tkinter import messagebox
 
-from PIL.XVThumbImagePlugin import b
+from tkinter import colorchooser
+#database stuff
+# create database
 
 root = Tk()
-root.title('Database Management System')
-root.geometry("1000x500")
+root.title('Codemy.com - TreeBase')
 
-# Add API Data from call api python file
+root.geometry("1600x700")
+my_menu = Menu(root)
+root.config(menu=my_menu)
+# Add Fake Data
+
+#config
+option_menu = Menu(my_menu,tearoff=0)
+my_menu.add_cascade(label="Options",menu=option_menu)
 
 
+def primary_color():
+    primary_color=colorchooser.askcolor()[1]
+    if primary_color:
+        my_tree.tag_configure('evenrow', background=primary_color)
+
+def secondary_color():
+    secondary_color = colorchooser.askcolor()[1]
+    if secondary_color:
+        my_tree.tag_configure('oddrow', background=secondary_color)
+
+
+def highlight_color():
+    highlight_color=colorchooser.askcolor()[1]
+
+    # Change Selected Color
+    if highlight_color:
+        style.map('Treeview',
+        background=[('selected', highlight_color)])
+
+
+#dropdown
+
+option_menu.add_command(label="Change primary Color",command=primary_color)
+option_menu.add_command(label="Secondary color ",command=secondary_color)
+option_menu.add_command(label="Highlight Color",command=highlight_color)
+option_menu.add_separator()
+option_menu.add_command(label="Exit",command="root.quit")
+
+
+'''
 data = [
-    ['Terry', 'Medhurst', '1', 'Smitham', '50', 'male', 'atuny0@sohu.com'],
-    ['Sheldon', 'Quigley', '2', 'Cole', '28', 'male', 'hbingley1@plala.or.jp'],
-    ['Terrill', 'Hills', '3', 'Hoeger', '38', 'male', 'rshawe2@51.la'],
-    ['Miles', 'Cummerata', '4', 'Maggio', '49', 'male', 'yraigatt3@nature.com'],
-    ['Mavis', 'Schultz', '5', 'Yundt', '38', 'male', 'kmeus4@upenn.edu'],
-    ['Alison', 'Reichert', '6', 'Franecki', '21', 'female', 'jtreleven5@nhs.uk'],
-    ['Oleta', 'Abbott', '7', 'Wyman', '31', 'female', 'dpettegre6@columbia.edu'],
-    ['Ewell', 'Mueller', '8', 'Durgan', '29', 'male', 'ggude7@chron.com'],
-    ['Demetrius', 'Corkery', '9', 'Gleason', '22', 'male', 'nloiterton8@aol.com'],
-    ['Eleanora', 'Price', '10', 'Cummings', '37', 'female', 'umcgourty9@jalbum.net'],
-    ['Marcel', 'Jones', '11', 'Smith', '39', 'male', 'acharlota@liveinternet.ru'],
-    ['Assunta', 'Rath', '12', 'Heller', '42', 'female', 'rhallawellb@dropbox.com'],
-    ['Trace', 'Douglas', '13', 'Lemke', '26', 'male', 'lgribbinc@posterous.com'],
-    ['Enoch', 'Lynch', '14', 'Heidenreich', '21', 'male', 'mturleyd@tumblr.com'],
-    ['Jeanne', 'Halvorson', '15', 'Cummerata', '26', 'female', 'kminchelle@qq.com'],
-    ['Trycia', 'Fadel', '16', 'Rosenbaum', '41', 'female', 'dpierrof@vimeo.com'],
-    ['Bradford', 'Prohaska', '17', 'Bins', '43', 'male', 'vcholdcroftg@ucoz.com'],
-    ['Arely', 'Skiles', '18', 'Monahan', '42', 'male', 'sberminghamh@chron.com'],
-    ['Gust', 'Purdy', '19', 'Abshire', '46', 'male', 'bleveragei@so-net.ne.jp'],
-    ['Lenna', 'Renner', '20', 'Schumm', '41', 'female', 'aeatockj@psu.edu'],
-    ['Doyle', 'Ernser', '21', 'Feeney', '23', 'male', 'ckensleyk@pen.io'],
-    ['Tressa', 'Weber', '22', 'Williamson', '41', 'female', 'froachel@howstuffworks.com'],
-    ['Felicity', 'Reilly', '23', 'Rosenbaum', '46', 'female', 'beykelhofm@wikispaces.com'],
-    ['Jocelyn', 'Schuster', '24', 'Dooley', '19', 'male', 'brickeardn@fema.gov'],
-    ['Edwina', 'Ernser', '25', 'Kiehn', '21', 'female', 'dfundello@amazon.co.jp'],
-    ['Griffin', 'Braun', '26', 'Deckow', '35', 'male', 'lgronaverp@cornell.edu'],
-    ['Piper', 'Schowalter', '27', 'Wuckert', '47', 'female', 'fokillq@amazon.co.jp'],
-    ['Kody', 'Terry', '28', 'Larkin', '28', 'male', 'xisherwoodr@ask.com'],
-    ['Macy', 'Greenfelder', '29', 'Koepp', '45', 'female', 'jissetts@hostgator.com'],
-    ['Maurine', 'Stracke', '30', 'Abshire', '31', 'female', 'kdulyt@umich.edu']
+    ["John", "Elder", 1, "123 Elder St.", "702-555-0123", "john.elder@example.com", "www.elder.com", "1", "100", "Elder Street", "Las Vegas", "Nevada", "89137", "NV", "89137"],
+    ["Mary", "Smith", 2, "435 West Lookout", "312-555-0198", "mary.smith@example.com", "www.smith.com", "2", "200", "West Lookout", "Chicago", "Illinois", "60610", "IL", "60610"],
+    ["Tim", "Tanaka", 3, "246 Main St.", "212-555-0156", "tim.tanaka@example.com", "www.tanaka.com", "3", "300", "Main Street", "New York", "New York", "12345", "NY", "12345"],
+    ["Erin", "Erinton", 4, "333 Top Way.", "213-555-0189", "erin.erinton@example.com", "www.erinton.com", "4", "400", "Top Way", "Los Angeles", "California", "90210", "CA", "90210"],
+    ["Bob", "Bobberly", 5, "876 Left St.", "901-555-0110", "bob.bobberly@example.com", "www.bobberly.com", "5", "500", "Left Street", "Memphis", "Tennessee", "34321", "TN", "34321"],
+    ["Steve", "Smith", 6, "1234 Main St.", "305-555-0122", "steve.smith@example.com", "www.smithsteve.com", "6", "600", "Main Street", "Miami", "Florida", "12321", "FL", "12321"],
+    ["Tina", "Browne", 7, "654 Street Ave.", "312-555-0133", "tina.browne@example.com", "www.browne.com", "7", "700", "Street Avenue", "Chicago", "Illinois", "60611", "IL", "60611"],
+    ["Mark", "Lane", 8, "12 East St.", "615-555-0144", "mark.lane@example.com", "www.lane.com", "8", "800", "East Street", "Nashville", "Tennessee", "54345", "TN", "54345"],
+    ["John", "Smith", 9, "678 North Ave.", "314-555-0155", "john.smith@example.com", "www.smithjohn.com", "9", "900", "North Avenue", "St. Louis", "Missouri", "67821", "MO", "67821"],
+    ["Mary", "Todd", 10, "9 Elder Way.", "214-555-0166", "mary.todd@example.com", "www.todd.com", "10", "1000", "Elder Way", "Dallas", "Texas", "88948", "TX", "88948"],
+    ["John", "Lincoln", 11, "123 Elder St.", "702-555-0177", "john.lincoln@example.com", "www.lincoln.com", "11", "1100", "Elder Street", "Las Vegas", "Nevada", "89137", "NV", "89137"],
+    ["Mary", "Bush", 12, "435 West Lookout", "312-555-0188", "mary.bush@example.com", "www.bush.com", "12", "1200", "West Lookout", "Chicago", "Illinois", "60610", "IL", "60610"],
+    ["Tim", "Reagan", 13, "246 Main St.", "212-555-0199", "tim.reagan@example.com", "www.reagan.com", "13", "1300", "Main Street", "New York", "New York", "12345", "NY", "12345"],
+    ["Erin", "Smith", 14, "333 Top Way.", "213-555-0200", "erin.smith@example.com", "www.smith.com", "14", "1400", "Top Way", "Los Angeles", "California", "90210", "CA", "90210"],
+    ["Bob", "Field", 15, "876 Left St.", "901-555-0211", "bob.field@example.com", "www.field.com", "15", "1500", "Left Street", "Memphis", "Tennessee", "34321", "TN", "34321"],
+    ["Steve", "Target", 16, "1234 Main St.", "305-555-0222", "steve.target@example.com", "www.target.com", "16", "1600", "Main Street", "Miami", "Florida", "12321", "FL", "12321"],
+    ["Tina", "Walton", 17, "654 Street Ave.", "312-555-0233", "tina.walton@example.com", "www.walton.com", "17", "1700", "Street Avenue", "Chicago", "Illinois", "60611", "IL", "60611"],
+    ["Mark", "Erendale", 18, "12 East St.", "615-555-0244", "mark.erendale@example.com", "www.erendale.com", "18", "1800", "East Street", "Nashville", "Tennessee", "54345", "TN", "54345"],
+    ["John", "Nowerton", 19, "678 North Ave.", "314-555-0255", "john.nowerton@example.com", "www.nowerton.com", "19", "1900", "North Avenue", "St. Louis", "Missouri", "67821", "MO", "67821"],
+    ["Mary", "Hornblower", 20, "9 Elder Way.", "214-555-0266", "mary.hornblower@example.com", "www.hornblower.com", "20", "2000", "Elder Way", "Dallas", "Texas", "88948", "TX", "88948"]
 ]
-
-# Do some database stuff
-
-# Create a database or connect to one that exists
+'''
 conn = sqlite3.connect('tree_crm.db')
 
-# Create a cursor instance
+#create cursor instance - a robot does everything work you
 c = conn.cursor()
-
-# Create Table with singleton method
-class create_table:
-    __instance = None
-    @staticmethod
-    def getInstance():
-        """ Static access method. """
-        print("This is an singleton static method")
-        if create_table.__instance == None:
-            create_table()
-        return create_table.__instance
-    def __init__(self):
-        """ Virtually private constructor. """
-        if create_table.__instance != None:
-            raise Exception("This class is a singleton!")
-        else:
-            create_table.__instance = self
-
-    c.execute("""CREATE TABLE if not exists customers (
-        first_name varchar(15),
-        last_name varchar(15),
-        id integer primary key,
-        Middlename varchar(15),
-        Age integer,
-        gender text,
-        emailid text)
-        """)
+c.execute("""
+CREATE TABLE if not exists contact (
+    First_Name text,
+     Last_Name text,
+     ID integer,
+     Company  text,                 
+    Phone integer,
+     Email text,
+     Website text,
+      Unit_Number text,
+      Civic_Number text,
+       Street text,
+      City text,
+      Province text,
+      Postal_Code text
+)
 
 
-s = create_table()
-print(s)
-s = create_table.getInstance()
-print(s)
-s = create_table.getInstance()
-print(s)
-#s2 = create_table()
-
+""")
+#Add dummy data to the database
+'''
 for record in data:
-	c.execute("INSERT INTO customers VALUES (:first_name, :last_name, :id, :address, :city, :state, :zipcode)",
-		{
-		'first_name': record[0],
-		'last_name': record[1],
-		'id': record[2],
-		'address': record[3],
-		'city': record[4],
-		'state': record[5],
-		'zipcode': record[6]
-		}
-		)
-
-
-# Commit changes
+    c.execute("""
+    INSERT INTO contact 
+    (First_Name, Last_Name, ID, Company, Phone, Email, Website, Unit_Number, Civic_Number, Street, City, Province, Postal_Code) 
+    VALUES 
+    (:First_Name, :Last_Name, :ID, :Company, :Phone, :Email, :Website, :Unit_Number, :Civic_Number, :Street, :City, :Province, :Postal_Code)
+    """, {
+        'First_Name': record[0],
+        'Last_Name': record[1],
+        'ID': record[2],
+        'Company': record[3],
+        'Phone': record[4],
+        'Email': record[5],
+        'Website': record[6],
+        'Unit_Number': record[7],
+        'Civic_Number': record[8],
+        'Street': record[9],
+        'City': record[10],
+        'Province': record[11],
+        'Postal_Code': record[12]
+    })
+'''
+# commit the chnages to the databases
 conn.commit()
-
-# Close our connection
 conn.close()
-
-
-
-res = [
-    ['Terry', '23'],
-    ['Sheldon', '46'],
-    ['Terrill', '47'],
-    ['Miles', '45']]
-
-
-
-
-#adding new table into the system
-
-conn = sqlite3.connect('tree_crm.db')
-
-# Create a cursor instance
-c = conn.cursor()
-
-
-
-# Create Table with singleton method
-class course:
-    __instance = None
-    @staticmethod
-    def getInstance():
-        """ Static access method. """
-        print("This is an singleton static method")
-        if course.__instance == None:
-            course()
-        return course.__instance
-    def __init__(self):
-        """ Virtually private constructor. """
-        if course.__instance != None:
-            raise Exception("This class is a singleton!")
-        else:
-            course.__instance = self
-
-    c.execute("""CREATE TABLE if not exists course (
-        course_name varchar(15),
-        course_id integer primary key)
-        """)
-
-
-
-for record in res:
-	c.execute("INSERT or IGNORE INTO course VALUES (:course_name, :course_id)",
-		{
-		'course_name': record[0],
-		'course_id': record[1]
-		}
-		)
-
-
-# Commit changes
-conn.commit()
-
-# Close our connection
-conn.close()
-
-
-#adding study table into tge database
-
-
-dt = [
-    ['14', '23'],
-    ['45', '46'],
-    ['78', '47'],
-    ['79', '45']]
-
-
-
-
-#adding new table into the system
-
-conn = sqlite3.connect('tree_crm.db')
-
-# Create a cursor instance
-c = conn.cursor()
-
-
-
-# Create Table with singleton method
-class study:
-    __instance = None
-    @staticmethod
-    def getInstance():
-        """ Static access method. """
-        print("This is an singleton static method")
-        if study.__instance == None:
-            study()
-        return study.__instance
-    def __init__(self):
-        """ Virtually private constructor. """
-        if study.__instance != None:
-            raise Exception("This class is a singleton!")
-        else:
-            study.__instance = self
-
-    c.execute("""CREATE TABLE if not exists study (
-        student_id varchar(15),
-        course_id integer)
-        """)
-
-
-
-for record in dt:
-	c.execute("INSERT or IGNORE INTO study VALUES(:student_id, :course_id)",
-		{
-		'student_id': record[0],
-		'course_id': record[1]
-		}
-		)
-
-
-
-
-
-# Commit changes
-conn.commit()
-
-# Close our connection
-conn.close()
-
-
 
 def query_database():
-    global a
-    a=0
-    # Create a database or connect to one that exists
     conn = sqlite3.connect('tree_crm.db')
 
-    # Create a cursor instance
+    # create cursor instance - a robot does everything work you
     c = conn.cursor()
 
-    c.execute("SELECT rowid, * FROM customers")
+    c.execute("SELECT rowid, * from contact")
     records = c.fetchall()
-
-    # Add our data to the screen
+    #fetching the data from records
     global count
-    count = 0
 
-    # for record in records:
-    #	print(record)
+
+    count = 0
 
     for record in records:
         if count % 2 == 0:
             my_tree.insert(parent='', index='end', iid=count, text='',
-                           values=(record[2], record[1], record[0], record[4], record[5], record[6], record[7]),
+                           values=(
+                           record[1], record[2], record[0],record[4], record[5], record[6], record[7],
+                           record[8], record[9], record[10], record[11], record[12],record [13]),
                            tags=('evenrow',))
         else:
             my_tree.insert(parent='', index='end', iid=count, text='',
-                           values=(record[2], record[1], record[0], record[4], record[5], record[6], record[7]),
+                           values=(
+                           record[1], record[2], record[0],  record[4], record[5], record[6], record[7],
+                           record[8], record[9], record[10], record[11], record[12],record[13],),
                            tags=('oddrow',))
         # increment counter
         count += 1
-
-    # Commit changes
+    print(records)
     conn.commit()
-
-    # Close our connection
     conn.close()
-    a=a
+
+
 
 # Add Some Style
 style = ttk.Style()
@@ -306,31 +192,49 @@ my_tree.pack()
 tree_scroll.config(command=my_tree.yview)
 
 # Define Our Columns
-my_tree['columns'] = ("First Name", "Last Name", "ID", "Middlename", "Age", "gender", "emailid")
-
+my_tree['columns'] = ("First Name", "Last Name", "ID", "Company",
+                      "Phone", "Email", "Website", "Unit Number", "Civic Number", "Street",
+                      "City","Province", "Postal Code")
 # Format Our Columns
 my_tree.column("#0", width=0, stretch=NO)
-my_tree.column("First Name", anchor=W, width=140)
-my_tree.column("Last Name", anchor=W, width=140)
-my_tree.column("ID", anchor=CENTER, width=100)
-my_tree.column("Middlename", anchor=CENTER, width=140)
-my_tree.column("Age", anchor=CENTER, width=140)
-my_tree.column("gender", anchor=CENTER, width=140)
-my_tree.column("emailid", anchor=CENTER, width=140)
+my_tree.column("First Name", anchor=W, width=120)
+my_tree.column("Last Name", anchor=W, width=120)
+my_tree.column("ID", anchor=CENTER, width=50)
+my_tree.column("Company", anchor=CENTER, width=140)
+my_tree.column("Phone", anchor=CENTER, width=140)
+my_tree.column("Email", anchor=CENTER, width=140)
+my_tree.column("Website", anchor=CENTER, width=140)
+my_tree.column("Unit Number", anchor=CENTER, width=80)
+my_tree.column("Civic Number", anchor=CENTER, width=80)
+my_tree.column("Street", anchor=CENTER, width=140)
+my_tree.column("City", anchor=CENTER, width=120)
+my_tree.column("Province", anchor=CENTER, width=120)
+my_tree.column("Postal Code", anchor=CENTER, width=120)
 
 # Create Headings
 my_tree.heading("#0", text="", anchor=W)
 my_tree.heading("First Name", text="First Name", anchor=W)
 my_tree.heading("Last Name", text="Last Name", anchor=W)
 my_tree.heading("ID", text="ID", anchor=CENTER)
-my_tree.heading("Middlename", text="Middle name", anchor=CENTER)
-my_tree.heading("Age", text="Age", anchor=CENTER)
-my_tree.heading("gender", text="Gender", anchor=CENTER)
-my_tree.heading("emailid", text="Email ID", anchor=CENTER)
+my_tree.heading("Company", text="Company", anchor=CENTER)
+my_tree.heading("Phone", text="Phone", anchor=CENTER)
+my_tree.heading("Email", text="Email", anchor=CENTER)
+my_tree.heading("Website", text="Website", anchor=CENTER)
+my_tree.heading("Unit Number", text="Unit Number", anchor=CENTER)
+my_tree.heading("Civic Number", text="Civic Number", anchor=CENTER)
+my_tree.heading("Street", text="Street", anchor=CENTER)
+my_tree.heading("City", text="City", anchor=CENTER)
+my_tree.heading("Province", text="Province", anchor=CENTER)
+my_tree.heading("Postal Code", text="Postal Code", anchor=CENTER)
+
+
 
 # Create Striped Row Tags
 my_tree.tag_configure('oddrow', background="white")
 my_tree.tag_configure('evenrow', background="lightblue")
+
+# Add our data to the screen
+
 
 # Add Record Entry Boxes
 data_frame = LabelFrame(root, text="Record")
@@ -351,308 +255,297 @@ id_label.grid(row=0, column=4, padx=10, pady=10)
 id_entry = Entry(data_frame)
 id_entry.grid(row=0, column=5, padx=10, pady=10)
 
-Middlename_label = Label(data_frame, text="Middle name")
-Middlename_label.grid(row=1, column=0, padx=10, pady=10)
-Middlename_entry = Entry(data_frame)
-Middlename_entry.grid(row=1, column=1, padx=10, pady=10)
+Company_label = Label(data_frame, text="Company")
+Company_label.grid(row=1, column=0, padx=10, pady=10)
+Company_entry = Entry(data_frame)
+Company_entry.grid(row=1, column=1, padx=10, pady=10)
 
-age_label = Label(data_frame, text="Age")
-age_label.grid(row=1, column=2, padx=10, pady=10)
-age_entry = Entry(data_frame)
-age_entry.grid(row=1, column=3, padx=10, pady=10)
+Phone_label = Label(data_frame, text="Phone")
+Phone_label.grid(row=1, column=2, padx=10, pady=10)
+Phone_entry = Entry(data_frame)
+Phone_entry.grid(row=1, column=3, padx=10, pady=10)
 
-gender_label = Label(data_frame, text="Gender")
-gender_label.grid(row=1, column=4, padx=10, pady=10)
-gender_entry = Entry(data_frame)
-gender_entry.grid(row=1, column=5, padx=10, pady=10)
+Email_label = Label(data_frame, text="Email")
+Email_label.grid(row=1, column=4, padx=10, pady=10)
+Email_entry = Entry(data_frame)
+Email_entry.grid(row=1, column=5, padx=10, pady=10)
 
-emailid_label = Label(data_frame, text="Email ID")
-emailid_label.grid(row=1, column=6, padx=10, pady=10)
-emailid_entry = Entry(data_frame)
-emailid_entry.grid(row=1, column=7, padx=10, pady=10)
+Website_label = Label(data_frame, text="Website")
+Website_label.grid(row=1, column=6, padx=10, pady=10)
+Website_entry = Entry(data_frame)
+Website_entry.grid(row=1, column=7, padx=10, pady=10)
+
+# new data frame for the address
+data_frame = LabelFrame(root, text="Address")
+data_frame.pack(fill="x", expand="yes", padx=20)
+
+Unit_Number_label = Label(data_frame, text="Unit number")
+Unit_Number_label.grid(row=0, column=1, padx=10, pady=10)
+Unit_Number_entry = Entry(data_frame)
+Unit_Number_entry.grid(row=0, column=2, padx=10, pady=10)
+
+Civic_Number_label = Label(data_frame, text="Civic Number")
+Civic_Number_label.grid(row=0, column=3, padx=10, pady=10)
+Civic_Number_entry = Entry(data_frame)
+Civic_Number_entry.grid(row=0, column=4, padx=10, pady=10)
+
+Street_label = Label(data_frame, text="Street")
+Street_label.grid(row=0, column=5, padx=10, pady=10)
+Street_entry = Entry(data_frame)
+Street_entry.grid(row=0, column=6, padx=10, pady=10)
+
+City_label = Label(data_frame, text="City")
+City_label.grid(row=1, column=1, padx=10, pady=10)
+City_entry = Entry(data_frame)
+City_entry.grid(row=1, column=2, padx=10, pady=10)
+
+Province_label = Label(data_frame, text="Province")
+Province_label.grid(row=1, column=3, padx=10, pady=10)
+Province_entry = Entry(data_frame)
+Province_entry.grid(row=1, column=4, padx=10, pady=10)
+
+Postal_Code_label = Label(data_frame, text="Postal Code")
+Postal_Code_label.grid(row=1, column=5, padx=10, pady=10)
+Postal_Code_entry = Entry(data_frame)
+Postal_Code_entry.grid(row=1, column=6, padx=10, pady=10)
+
+#fucntion
+
+def remove_all():
+    messagebox.askyesno("WOAH!!","This will delete everthing from the database")
+    #add logic
+    if resposne == 1:
+
+        for record in my_tree.get_children():
+            my_tree.delete(record)
+
+            # update the database
+            conn = sqlite3.connect('tree_crm.db')
+
+            # create cursor instance - a robot does everything work you
+            c = conn.cursor()
+            c.execute("DROP TABLe contact")
+
+            # fetching the data from records
+
+            conn.commit()
+            conn.close()
+            clear_entries()
+    else:
+        pass
+# remove one record
 
 
-# Move Row Up
+def remove_one():
+    x=my_tree.selection()[0]
+    my_tree.delete(x)
+
+    # update the database
+    conn = sqlite3.connect('tree_crm.db')
+
+    # create cursor instance - a robot does everything work you
+    c = conn.cursor()
+    c.execute("DELETE from contact WHERE oid=" + id_entry.get())
+
+    # fetching the data from records
+
+    conn.commit()
+    conn.close()
+    clear_entries()
+    messagebox.showinfo("Deleted", "Your record has been deleted")
+
+
+def remove_many():
+    response = messagebox.askyesno("Confirmation", "Are you sure you want to delete the selected records?")
+    if response:  # If the user clicks 'Yes', response will be True
+        selected_items = my_tree.selection()
+        ids_to_delete = []
+
+        # Collect all IDs to delete
+        for item in selected_items:
+            ids_to_delete.append(my_tree.item(item, 'values')[2])
+            my_tree.delete(item)
+
+        # Delete from database
+        conn = sqlite3.connect('tree_crm.db')
+        c = conn.cursor()
+        c.execute("DELETE FROM contact WHERE ID IN ({})".format(','.join('?' * len(ids_to_delete))), ids_to_delete)
+        conn.commit()
+        conn.close()
+
+        messagebox.showinfo("Success", "Records have been deleted successfully.")
+    else:
+        messagebox.showinfo("Cancelled", "Operation cancelled.")
+
 def up():
     rows = my_tree.selection()
-    for row in rows:
-        my_tree.move(row, my_tree.parent(row), my_tree.index(row) - 1)
+    for row in rows :
+        my_tree.move(row, my_tree.parent(row),my_tree.index(row)-1)
 
-
-# Move Rown Down
-def down():
+def down() :
     rows = my_tree.selection()
     for row in reversed(rows):
         my_tree.move(row, my_tree.parent(row), my_tree.index(row) + 1)
 
-
-
-    # Remove one record
-
-
-def remove_one():
-    global b
-    b=0
-    x = my_tree.selection()[0]
-    my_tree.delete(x)
-
-    # Create a database or connect to one that exists
-    conn = sqlite3.connect('tree_crm.db')
-
-    # Create a cursor instance
-    c = conn.cursor()
-
-    # Delete From Database
-    c.execute("DELETE from customers WHERE oid=" + id_entry.get())
-
-    # Commit changes
-    conn.commit()
-
-    # Close our connection
-    conn.close()
-
-    # Clear The Entry Boxes
-    clear_entries()
-
-    # Add a little message box for fun
-    messagebox.showinfo("Deleted!", "Your Record Has Been Deleted!")
-    b=b
-
-# Remove Many records
-def remove_many():
-    global c
-    c=0
-    # Add a little message box for fun
-    response = messagebox.askyesno("Delete", "This Will Delete all the records from the database\nAre You Sure?!")
-
-    # Add logic for message box
-    if response == 1:
-        # Designate selections
-        x = my_tree.selection()
-
-        # Create List of ID's
-        ids_to_delete = []
-
-        # Add selections to ids_to_delete list
-        for record in x:
-            ids_to_delete.append(my_tree.item(record, 'values')[2])
-
-        # Delete From Treeview
-        for record in x:
-            my_tree.delete(record)
-
-        # Create a database or connect to one that exists
-        conn = sqlite3.connect('tree_crm.db')
-
-        # Create a cursor instance
-        c = conn.cursor()
-
-        # Delete Everything From The Table
-        c.executemany("DELETE FROM customers WHERE id = ?", [(a,) for a in ids_to_delete])
-
-        # Reset List
-        ids_to_delete = []
-
-        # Commit changes
-        conn.commit()
-
-        # Close our connection
-        conn.close()
-
-        # Clear entry boxes if filled
-        clear_entries()
-        c=c
-
-
-# Remove all records
-def remove_all():
-    # Add a little message box for fun
-    response = messagebox.askyesno("This Will Delete all the records from the database\nAre You Sure?!")
-
-    # Add logic for message box
-    if response == 1:
-        # Clear the Treeview
-        for record in my_tree.get_children():
-            my_tree.delete(record)
-
-        # Create a database or connect to one that exists
-        conn = sqlite3.connect('tree_crm.db')
-
-        # Create a cursor instance
-        c = conn.cursor()
-
-        # Delete Everything From The Table
-        c.execute("DROP TABLE customers")
-
-        # Commit changes
-        conn.commit()
-
-        # Close our connection
-        conn.close()
-
-        # Clear entry boxes if filled
-        clear_entries()
-
-        # Recreate The Table
-        create_table_again()
-
-global d
-d=0
-# Clear entry boxes
-def clear_entries():
-
-    # Clear entry boxes
+def clear_entries() :
     fn_entry.delete(0, END)
     ln_entry.delete(0, END)
     id_entry.delete(0, END)
-    Middlename_entry.delete(0, END)
-    age_entry.delete(0, END)
-    gender_entry.delete(0, END)
-    emailid_entry.delete(0, END)
-d=d
+    Company_entry.delete(0, END)
+    Phone_entry.delete(0, END)
+    Email_entry.delete(0, END)
+    Website_entry.delete(0, END)
+    Unit_Number_entry.delete(0, END)
+    Civic_Number_entry.delete(0, END)
+    Street_entry.delete(0, END)
+    City_entry.delete(0, END)
+    Province_entry.delete(0, END)
+    Postal_Code_entry.delete(0, END)
 
-# Select Record
-def select_record(e):
-    # Clear entry boxes
-    fn_entry.delete(0, END)
-    ln_entry.delete(0, END)
-    id_entry.delete(0, END)
-    Middlename_entry.delete(0, END)
-    age_entry.delete(0, END)
-    gender_entry.delete(0, END)
-    emailid_entry.delete(0, END)
 
-    # Grab record Number
-    selected = my_tree.focus()
-    # Grab record values
-    values = my_tree.item(selected, 'values')
 
-    # outpus to entry boxes
+#Select Record
+def select_record(e) :
+    #Clear enrty boxes
+    fn_entry.delete(0,END)
+    ln_entry.delete(0,END)
+    id_entry.delete(0,END)
+    Company_entry.delete(0,END)
+    Phone_entry.delete(0,END)
+    Email_entry.delete(0,END)
+    Website_entry.delete(0,END)
+    Unit_Number_entry.delete(0,END)
+    Civic_Number_entry.delete(0,END)
+    Street_entry.delete(0,END)
+    City_entry.delete(0,END)
+    Province_entry.delete(0,END)
+    Postal_Code_entry.delete(0,END)
+
+
+    #Grad Record
+    seletced = my_tree.focus()
+    #grab record value
+    values = my_tree.item(seletced,'values')
+
+    # output entry boxes
     fn_entry.insert(0, values[0])
     ln_entry.insert(0, values[1])
     id_entry.insert(0, values[2])
-    Middlename_entry.insert(0, values[3])
-    age_entry.insert(0, values[4])
-    gender_entry.insert(0, values[5])
-    emailid_entry.insert(0, values[6])
+    Company_entry.insert(0, values[3])
+    Phone_entry.insert(0, values[4])
+    Email_entry.insert(0, values[5])
+    Website_entry.insert(0, values[6])
+    Unit_Number_entry.insert(0, values[7])
+    Civic_Number_entry.insert(0, values[8])
+    Street_entry.insert(0, values[9])
+    City_entry.insert(0, values[10])
+    Province_entry.insert(0, values[11])
+    Postal_Code_entry.insert(0, values[12])
 
+#update record
 
-# Update record
 def update_record():
+    selected = my_tree.focus()
+    my_tree.item(selected,text="",values=(fn_entry.get(),ln_entry.get(),id_entry.get(),Company_entry.get(),
+                                          Phone_entry.get(),
+                                          Email_entry.get(),
+                                          Website_entry.get()
+                                          ,Unit_Number_entry.get(),
+                                          Civic_Number_entry.get(),
+                                          Street_entry.get(),
+                                          City_entry.get(),
+                                          Province_entry.get(),
+                                          Postal_Code_entry.get()))
 
-            # Grab the record number
-            selected = my_tree.focus()
-            # Update record
-            my_tree.item(selected, text="", values=(
-                fn_entry.get(), ln_entry.get(), id_entry.get(), Middlename_entry.get(), age_entry.get(), gender_entry.get(),
-                emailid_entry.get(),))
-
-            # Update the database
-            # Create a database or connect to one that exists
-            conn = sqlite3.connect('tree_crm.db')
-
-            # Create a cursor instance
-            c = conn.cursor()
-
-            c.execute("""UPDATE customers SET
-                first_name = :first,
-                last_name = :last,
-                Middlename = :Middlename,
-                age = :age,
-                gender = :gender,
-                emailid = :emailid
-        
-                WHERE oid = :oid""",
-                      {
-                          'first': fn_entry.get(),
-                          'last': ln_entry.get(),
-                          'Middlename': Middlename_entry.get(),
-                          'age': age_entry.get(),
-                          'gender': gender_entry.get(),
-                          'emailid': emailid_entry.get(),
-                          'oid': id_entry.get(),
-                      })
-
-            # Commit changes
-            conn.commit()
-
-            # Close our connection
-            conn.close()
-
-        # Clear entry boxes
-            fn_entry.delete(0, END)
-            ln_entry.delete(0, END)
-            id_entry.delete(0, END)
-            Middlename_entry.delete(0, END)
-            age_entry.delete(0, END)
-            gender_entry.delete(0, END)
-            emailid_entry.delete(0, END)
-
-# add new record to database
-def add_record():
-        # Update the database
-        # Create a database or connect to one that exists
-            conn = sqlite3.connect('tree_crm.db')
-
-            # Create a cursor instance
-            c = conn.cursor()
-
-            # Add New Record
-            c.execute("INSERT INTO customers VALUES (:first, :last, :id, :Middlename, :age, :gender, :emailid)",
-                      {
-                          'first': fn_entry.get(),
-                          'last': ln_entry.get(),
-                          'id': id_entry.get(),
-                          'Middlename': Middlename_entry.get(),
-                          'age': age_entry.get(),
-                          'gender': gender_entry.get(),
-                          'emailid': emailid_entry.get(),
-                      })
-
-            # Commit changes
-            conn.commit()
-
-            # Close our connection
-            conn.close()
-
-            # Clear entry boxes
-            fn_entry.delete(0, END)
-            ln_entry.delete(0, END)
-            id_entry.delete(0, END)
-            Middlename_entry.delete(0, END)
-            age_entry.delete(0, END)
-            gender_entry.delete(0, END)
-            emailid_entry.delete(0, END)
-
-            # Clear The Treeview Table
-            my_tree.delete(*my_tree.get_children())
-
-            # Run to pull data from database on start
-            query_database()
-
-def create_table_again():
-    # Create a database or connect to one that exists
+    # update the database
     conn = sqlite3.connect('tree_crm.db')
 
-    # Create a cursor instance
+    # create cursor instance - a robot does everything work you
     c = conn.cursor()
 
-    # Create Table
-    c.execute("""CREATE TABLE if not exists customers (
-		first_name text,
-		last_name text,
-		id integer,
-		Middlename text,
-		age text,
-		gender text,
-		emailid text)
-		""")
+    c.execute("""
+    UPDATE contact SET 
+    first_name = :first,
+    last_name = :last,
+    ID = :id,
+    Company = :company,
+    Phone = :phone,
+    Email = :email,
+    Website = :website,
+    Unit_Number = :unitnumber,
+    Civic_Number = :civicnumber,
+    Street = :street,
+    City = :city,
+    Province = :province,
+    Postal_Code = :postalcode
+    WHERE ROWID = :oid""",
+              {
+                  'first': fn_entry.get(),
+                  'last': ln_entry.get(),
+                  'id': id_entry.get(),
+                  'company': Company_entry.get(),
+                  'phone': Phone_entry.get(),
+                  'email': Email_entry.get(),
+                  'website': Website_entry.get(),
+                  'unitnumber': Unit_Number_entry.get(),
+                  'civicnumber': Civic_Number_entry.get(),
+                  'street': Street_entry.get(),
+                  'city': City_entry.get(),
+                  'province': Province_entry.get(),
+                  'postalcode': Postal_Code_entry.get(),
+                  'oid': id_entry.get(),
+              })
+    # fetching the data from records
 
-    # Commit changes
+
     conn.commit()
-
-    # Close our connection
     conn.close()
+
+#aadd record
+
+
+#add record
+def add_record():
+    conn = sqlite3.connect('tree_crm.db')
+    # create cursor instance - a robot does everything work you
+    c = conn.cursor()
+    #add new record
+    c.execute("INSERT INTO contact VALUES (:first, :last, :id, :company,:phone,:email,:website,:unitnumber,:civicnumber,:street,:city,:province,:postalcode)",
+              {
+                  'first': fn_entry.get(),
+                  'last': ln_entry.get(),
+                  'id': id_entry.get(),
+                  'company': Company_entry.get(),
+                  'phone': Phone_entry.get(),
+                  'email': Email_entry.get(),
+                  'website': Website_entry.get(),
+                  'unitnumber': Unit_Number_entry.get(),
+                  'civicnumber': Civic_Number_entry.get(),
+                  'street': Street_entry.get(),
+                  'city': City_entry.get(),
+                  'province': Province_entry.get(),
+                  'postalcode': Postal_Code_entry.get(),
+              })
+
+    conn.commit()
+    conn.close()
+    fn_entry.delete(0, END)
+    ln_entry.delete(0, END)
+    id_entry.delete(0, END)
+    Company_entry.delete(0, END)
+    Phone_entry.delete(0, END)
+    Email_entry.delete(0, END)
+    Website_entry.delete(0, END)
+    Unit_Number_entry.delete(0, END)
+    Civic_Number_entry.delete(0, END)
+    Street_entry.delete(0, END)
+    City_entry.delete(0, END)
+    Province_entry.delete(0, END)
+    Postal_Code_entry.delete(0, END)
+
+    #clear tree view
+    my_tree.delete(*my_tree.get_children())
+    query_database()
 
 
 # Add Buttons
@@ -662,66 +555,28 @@ button_frame.pack(fill="x", expand="yes", padx=20)
 update_button = Button(button_frame, text="Update Record", command=update_record)
 update_button.grid(row=0, column=0, padx=10, pady=10)
 
-add_button = Button(button_frame, text="Add Record", command=add_record)
+add_button = Button(button_frame, text="Add Record",command=add_record)
 add_button.grid(row=0, column=1, padx=10, pady=10)
 
-remove_all_button = Button(button_frame, text="Remove All Records", command=remove_all)
+remove_all_button = Button(button_frame, text="Remove All Records",command=remove_all)
 remove_all_button.grid(row=0, column=2, padx=10, pady=10)
 
-remove_one_button = Button(button_frame, text="Remove One Selected", command=remove_one)
+remove_one_button = Button(button_frame, text="Remove One Selected",command=remove_one)
 remove_one_button.grid(row=0, column=3, padx=10, pady=10)
 
-remove_many_button = Button(button_frame, text="Remove Many Selected", command=remove_many)
+remove_many_button = Button(button_frame, text="Remove Many Selected",command=remove_many)
 remove_many_button.grid(row=0, column=4, padx=10, pady=10)
 
-move_up_button = Button(button_frame, text="Move Up", command=up)
+move_up_button = Button(button_frame, text="Move Up", command= up)
 move_up_button.grid(row=0, column=5, padx=10, pady=10)
 
-move_down_button = Button(button_frame, text="Move Down", command=down)
+move_down_button = Button(button_frame, text="Move Down", command= down)
 move_down_button.grid(row=0, column=6, padx=10, pady=10)
 
-select_record_button = Button(button_frame, text="Clear Entry Boxes", command=clear_entries)
+select_record_button = Button(button_frame, text="Clear Enrty",command=clear_entries)
 select_record_button.grid(row=0, column=7, padx=10, pady=10)
 
-# Bind the treeview
+# bind with treeview
 my_tree.bind("<ButtonRelease-1>", select_record)
-
-# Run to pull data from database on start
 query_database()
-
 root.mainloop()
-
-
-class testing(unittest.TestCase):
-    #wirting test cases for query database
-
-    def test_query_database(self):
-        if (a==a) :
-            print("Query database Test case passed")
-        else :
-            print("Query database Test case Failed")
-
-    def test_remove_many(self):
-        if(b==b):
-         print("Remove many Test case passed")
-        else:
-         print("Remove many Test case failed")
-
-
-    def test_remove_one(self):
-        #writing test cases for remove one record
-        if (c == c):
-            print("Remove one Test case passed")
-        else:
-            print("Remove one Test case failed")
-
-    def  test_clr(self):
-        #writing test cases for clear widget
-        if(d == d):
-            print("Clear input test case passed")
-        else :
-            print("Clear input test case failed")
-
-
-if __name__ == '__main__':
-    unittest.main()
